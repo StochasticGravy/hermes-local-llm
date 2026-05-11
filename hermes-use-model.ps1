@@ -110,14 +110,22 @@ Write-Host ""
 # STEP 3: Get list of locally available models
 # ─────────────────────────────────────────────────────────────────────────────
 Write-Host "[3/5] Checking installed models..." -ForegroundColor Yellow
+
+# Primary check: use 'ollama list' CLI — most reliable, matches what you actually see
+$ollamaListLines = & ollama list 2>$null | Select-Object -Skip 1  # skip header row
+$localModelNames = $ollamaListLines | ForEach-Object { ($_ -split '\s+')[0].Trim() } | Where-Object { $_ -ne '' }
+
+# Fallback: also query REST API
 try {
     $tagsResponse = Invoke-RestMethod -Uri "$OllamaUrl/api/tags" -Method GET -TimeoutSec 10
-    $localModels = $tagsResponse.models | ForEach-Object { $_.name }
-    Write-Host "      $($localModels.Count) model(s) installed locally." -ForegroundColor Green
+    $apiModels = $tagsResponse.models | ForEach-Object { $_.name }
+    # Merge both lists, deduplicate
+    $localModels = ($localModelNames + $apiModels) | Sort-Object -Unique
 } catch {
-    Write-Host "      Could not query Ollama. Is it running?" -ForegroundColor Red
-    exit 1
+    $localModels = $localModelNames
 }
+
+Write-Host "      $($localModels.Count) model(s) installed locally." -ForegroundColor Green
 Write-Host ""
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -125,15 +133,16 @@ Write-Host ""
 # ─────────────────────────────────────────────────────────────────────────────
 Write-Host "[4/5] Model: $ModelName" -ForegroundColor Yellow
 
-# Check if already present (match exact, with :latest suffix, or base name)
+# Check if already present — exact match, :latest variant, or prefix match (no tag specified)
+$ModelNameClean = $ModelName.Trim()
 $alreadyHave = $localModels | Where-Object {
-    $_ -eq $ModelName -or
-    $_ -eq "${ModelName}:latest" -or
-    ($ModelName -notmatch ':' -and $_ -like "${ModelName}*")
+    $_.Trim() -eq $ModelNameClean -or
+    $_.Trim() -eq "${ModelNameClean}:latest" -or
+    ($ModelNameClean -notmatch ':' -and $_.Trim() -like "${ModelNameClean}:*")
 }
 
 if ($alreadyHave) {
-    Write-Host "      Already installed ($alreadyHave). Skipping pull." -ForegroundColor Green
+    Write-Host "      Already installed ($($alreadyHave -join ', ')). Skipping pull." -ForegroundColor Green
 } else {
     Write-Host "      Not found locally. Pulling from https://ollama.com/library..." -ForegroundColor White
     Write-Host "      (Large models may take several minutes to download)" -ForegroundColor DarkGray
@@ -211,7 +220,10 @@ $ollamaAddr = "localhost" + ":11434"
 Write-Host "  Provider: Ollama ($ollamaAddr)" -ForegroundColor White
 Write-Host "  Context : $OllamaNumCtx tokens" -ForegroundColor White
 Write-Host ""
-Write-Host "  Restart Hermes to apply: press Ctrl+C in the Hermes" -ForegroundColor Yellow
-Write-Host "  window, then run 'hermes' again." -ForegroundColor Yellow
+Write-Host "  To apply permanently (updates config.yaml + .env):" -ForegroundColor Yellow
+Write-Host "    Restart Hermes: Ctrl+C, then run 'hermes'" -ForegroundColor Yellow
+Write-Host ""
+Write-Host "  To try this session only (no config change):" -ForegroundColor Cyan
+Write-Host "    hermes --model $ModelName" -ForegroundColor White
 Write-Host "---------------------------------------------------------" -ForegroundColor DarkGray
 Write-Host ""
