@@ -243,6 +243,10 @@ hermes-use-model.bat qwen3.5:9b
 4. Updates `model.default` in `config.yaml`
 5. Updates `HERMES_MODEL` in `.env`
 
+**Why the script is still needed after fixing the context window:** Once `OLLAMA_NUM_CTX=65536` is set, you never touch it again — but that's only step 1 of 5. Without the script, switching models still requires manually running `ollama pull <model>`, then editing two config files by hand every time. The script collapses all of that into one command. It also checks whether the model is already installed and skips the download if so.
+
+**Why no `-hermes` suffix on the model name:** The old approach required building a custom model via Modelfile (e.g. `ollama create qwen3.5-hermes -f qwen3.5.Modelfile`) just to bake in the 64K context — then you had to use that renamed model everywhere. The global `OLLAMA_NUM_CTX` env var eliminates that entirely. You pull the model as-is from Ollama's library and use its real name directly, both in the script and in `hermes --model`.
+
 **Confirmed output (clean run):**
 ```
 === Hermes Model Switcher ===
