@@ -320,7 +320,9 @@ While Hermes is running, type the slash command:
 ```
 /model
 ```
-Opens a full interactive picker showing your local Ollama models and any authenticated cloud providers side by side. This is the easiest way to browse and switch mid-session without touching any files.
+Opens a picker showing authenticated cloud providers (OpenRouter, Google, Anthropic, OpenAI). **Local Ollama models do not appear here.** The picker only knows about providers with static model catalogs — `custom` isn't one of them. You'll see your active local model confirmed in the picker header (e.g. "Current: gemma4:e4b on custom"), but you can't browse or switch local models from this menu.
+
+To switch local models, use the script or the session flag (see Part 4).
 
 ### 4. What's available to pull from Ollama's library
 ```powershell
@@ -330,7 +332,7 @@ ollama search deepseek
 ```
 Or browse visually at [ollama.com/library](https://ollama.com/library) — shows sizes, quantization tags, and VRAM requirements for each model.
 
-**A note on cloud vs local:** Hermes maintains its own catalog of cloud-hosted models (accessible via Ollama's paid cloud API — things like `gemma4:31b`, `deepseek-v3.1:671b`, `kimi-k2:1t`). These appear alongside your local models in the `/model` picker. They're not the same as locally installed models — they run on remote servers and require an Ollama account key. If you're running local, ignore them.
+**A note on cloud vs local:** Hermes maintains its own catalog of cloud-hosted models (accessible via Ollama's paid cloud API — things like `gemma4:31b`, `deepseek-v3.1:671b`, `kimi-k2:1t`). These appear in the `/model` picker under their respective providers. They're not the same as locally installed models — they run on remote servers and require an Ollama account key. If you're running local, ignore them.
 
 ---
 
