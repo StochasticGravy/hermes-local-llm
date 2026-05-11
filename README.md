@@ -395,7 +395,7 @@ Running Hermes on cloud (`owl-alpha` via OpenRouter) while simultaneously runnin
 
 ## Credit
 
-Debugging assistance by **Claude Sonnet 4.5** (Anthropic), running autonomously in Cowork mode. Claude performed live diagnosis across two full context windows (~200K tokens each) — reading error logs, cross-referencing Hermes source code and GitHub issues, writing and iterating the fix scripts in real time. Bugs #1 and #2 in particular required correlating silent runtime behavior against known tracked issues. The `OLLAMA_NUM_CTX` global solution (eliminating per-model Modelfiles entirely) was also surfaced during that session.
+Debugging assistance by **Claude Sonnet 4.6** (Anthropic), running autonomously in Cowork mode. Claude performed live diagnosis across two full context windows (~200K tokens each) — reading error logs, cross-referencing Hermes source code and GitHub issues, writing and iterating the fix scripts in real time. Bugs #1 and #2 in particular required correlating silent runtime behavior against known tracked issues. The `OLLAMA_NUM_CTX` global solution (eliminating per-model Modelfiles entirely) was also surfaced during that session.
 
 ---
 
